@@ -4,7 +4,9 @@ import com.cuiyq.cloudpicturebackend.exception.BusinessException;
 import com.cuiyq.cloudpicturebackend.exception.ErrorCode;
 import com.cuiyq.cloudpicturebackend.exception.ThrowUtils;
 import com.cuiyq.cloudpicturebackend.model.domain.User;
+import com.cuiyq.cloudpicturebackend.model.dto.user.UserLoginRequest;
 import com.cuiyq.cloudpicturebackend.model.dto.user.UserRegisterRequest;
+import com.cuiyq.cloudpicturebackend.model.vo.UserLoginVo;
 import com.cuiyq.cloudpicturebackend.service.impl.userServiceImpl;
 import com.cuiyq.common.BaseResponse;
 import com.cuiyq.common.ResultUtils;
@@ -30,8 +32,22 @@ public class UserController {
     private userServiceImpl userService;
 
     /**
+     * 用户登录
+     * @param UserLoginRequest 登录请求类
+     * @return 登录结果
+     */
+    @PostMapping("/login")
+    public BaseResponse<UserLoginVo> userLogin(@RequestBody UserLoginRequest UserLoginRequest) {
+        String userAccount = UserLoginRequest.getUserAccount();
+        String userPassword = UserLoginRequest.getUserPassword();
+        UserLoginVo userLoginVo = userService.userLogin(userAccount, userPassword);
+        ThrowUtils.throwIf(userLoginVo == null, ErrorCode.PARAMS_ERROR, "用户名或密码错误");
+        return ResultUtils.success(userLoginVo);
+    }
+
+
+    /**
      * 用户注册
-     *
      * @param userRegisterRequest 注册请求类
      * @return 注册结果
      */

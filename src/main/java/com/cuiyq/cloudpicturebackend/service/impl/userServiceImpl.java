@@ -1,7 +1,8 @@
 package com.cuiyq.cloudpicturebackend.service.impl;
 
-import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -10,11 +11,18 @@ import com.cuiyq.cloudpicturebackend.exception.ErrorCode;
 import com.cuiyq.cloudpicturebackend.exception.ThrowUtils;
 import com.cuiyq.cloudpicturebackend.model.domain.User;
 import com.cuiyq.cloudpicturebackend.model.enums.UserRoleEnum;
+import com.cuiyq.cloudpicturebackend.model.vo.UserLoginVo;
 import com.cuiyq.cloudpicturebackend.service.userService;
 import com.cuiyq.cloudpicturebackend.mapper.userMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
-import org.springframework.util.StringUtils;
+
+import javax.annotation.Resource;
+
+import static com.cuiyq.cloudpicturebackend.constant.RedisConstant.USER_LOGIN_EXPIRE_SECONDS;
+import static com.cuiyq.cloudpicturebackend.constant.RedisConstant.USER_LOGIN_KEY;
 
 /**
  * @author cuiyq
@@ -22,10 +30,12 @@ import org.springframework.util.StringUtils;
  * @createDate 2025-04-16 16:12:40
  */
 @Service
+@Slf4j
 public class userServiceImpl extends ServiceImpl<userMapper, User>
         implements userService {
 
-
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
     /**
      * 用户注册
      *
@@ -82,6 +92,47 @@ public class userServiceImpl extends ServiceImpl<userMapper, User>
         final String salt = "cuiyq";
 //        加盐，返回加密后的密码
         return DigestUtils.md5DigestAsHex((salt + userPassword).getBytes());
+    }
+
+    @Override
+    public UserLoginVo userLogin(String userAccount, String userPassword) {
+//        1.校验
+        // 1. 校验
+        if (StrUtil.hasBlank(userAccount, userPassword)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
+        }
+        if (userAccount.length() < 4) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户账号错误");
+        }
+        if (userPassword.length() < 8) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户密码错误");
+        }
+//        2.对用户传递的密码进行加密
+        String encryptByPassword = getEncryptByPassword(userPassword);
+//        3.查询数据库，判断用户是否存在
+        User user = query().eq("userAccount", userAccount)
+                .eq("userPassword", encryptByPassword)
+                .one();
+        if (user == null) {
+
+            //4.不存在抛异常
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
+        }
+
+//        5.保存用户登录态，到redis中
+        stringRedisTemplate.opsForValue().set(USER_LOGIN_KEY + user.getId(), user.getId().toString(), USER_LOGIN_EXPIRE_SECONDS, TimeUnit.MINUTES);
+//        6.返回脱敏用户信息
+        return getLoginUserVo(user);
+    }
+
+    @Override
+    public UserLoginVo getLoginUserVo(User user) {
+        if (user == null) {
+            return null;
+        }
+        UserLoginVo userLoginVo = new UserLoginVo();
+        BeanUtil.copyProperties(user, userLoginVo);
+        return userLoginVo;
     }
 }
 
