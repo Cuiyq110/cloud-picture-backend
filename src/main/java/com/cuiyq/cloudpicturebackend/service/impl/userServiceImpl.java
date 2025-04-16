@@ -1,8 +1,14 @@
 package com.cuiyq.cloudpicturebackend.service.impl;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -21,8 +27,7 @@ import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
 
-import static com.cuiyq.cloudpicturebackend.constant.RedisConstant.USER_LOGIN_EXPIRE_SECONDS;
-import static com.cuiyq.cloudpicturebackend.constant.RedisConstant.USER_LOGIN_KEY;
+import static com.cuiyq.cloudpicturebackend.constant.UserConstant.*;
 
 /**
  * @author cuiyq
@@ -36,6 +41,7 @@ public class userServiceImpl extends ServiceImpl<userMapper, User>
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
     /**
      * 用户注册
      *
@@ -114,24 +120,50 @@ public class userServiceImpl extends ServiceImpl<userMapper, User>
                 .eq("userPassword", encryptByPassword)
                 .one();
         if (user == null) {
-
             //4.不存在抛异常
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
         }
 
-//        5.保存用户登录态，到redis中
-        stringRedisTemplate.opsForValue().set(USER_LOGIN_KEY + user.getId(), user.getId().toString(), USER_LOGIN_EXPIRE_SECONDS, TimeUnit.MINUTES);
+//        5.保存用户信息，到redis中
+//        5.1 随机生成token，作为登录令牌
+        String token = UUID.randomUUID().toString();
+        // 5.2. 将User对象转为HashMap存储
+        Map<String, Object> userMap = BeanUtil.beanToMap(user, new HashMap<>(), CopyOptions.create()
+                .setIgnoreNullValue(true)
+                .setFieldValueEditor((fieldName, fieldValue) -> {
+                    if (fieldValue instanceof Date) {
+                        return DateUtil.format((Date) fieldValue, "yyyy-MM-dd HH:mm:ss");
+                    }
+                    return fieldValue != null ? fieldValue.toString() : null;
+                }));
+        // 5.3.存储
+        String tokenKey = KEY_PRE_FIX + USER_LOGIN_KEY + token;
+        stringRedisTemplate.opsForHash().putAll(tokenKey, userMap);
+
+        //5.4.设置token有效期
+        stringRedisTemplate.expire(tokenKey, USER_LOGIN_EXPIRE_SECONDS, TimeUnit.SECONDS);
 //        6.返回脱敏用户信息
         return getLoginUserVo(user);
     }
 
+    /**
+     * 获取脱敏类的用户信息
+     *
+     * @param user 用户实体类，包含用户的基本信息
+     * @return UserLoginVo 用户登录信息的视图对象，包含用户登录所需的信息
+     */
     @Override
     public UserLoginVo getLoginUserVo(User user) {
+        // 检查传入的用户对象是否为空，为空则返回null，表示没有用户信息
         if (user == null) {
             return null;
         }
+        // 创建一个用户登录信息的视图对象实例
         UserLoginVo userLoginVo = new UserLoginVo();
+        // 使用BeanUtil工具类将用户实体类的属性值复制到用户登录信息的视图对象中
+        // 这里使用工具类是为了简化代码，提高开发效率
         BeanUtil.copyProperties(user, userLoginVo);
+        // 返回填充好用户信息的视图对象
         return userLoginVo;
     }
 }

@@ -10,10 +10,7 @@ import com.cuiyq.cloudpicturebackend.model.vo.UserLoginVo;
 import com.cuiyq.cloudpicturebackend.service.impl.userServiceImpl;
 import com.cuiyq.common.BaseResponse;
 import com.cuiyq.common.ResultUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -38,8 +35,12 @@ public class UserController {
      */
     @PostMapping("/login")
     public BaseResponse<UserLoginVo> userLogin(@RequestBody UserLoginRequest UserLoginRequest) {
+//        如果为空返回异常
+        ThrowUtils.throwIf(UserLoginRequest == null, ErrorCode.PARAMS_ERROR);
+//        获取账号密码
         String userAccount = UserLoginRequest.getUserAccount();
         String userPassword = UserLoginRequest.getUserPassword();
+//        登录
         UserLoginVo userLoginVo = userService.userLogin(userAccount, userPassword);
         ThrowUtils.throwIf(userLoginVo == null, ErrorCode.PARAMS_ERROR, "用户名或密码错误");
         return ResultUtils.success(userLoginVo);

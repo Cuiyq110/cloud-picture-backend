@@ -8,7 +8,7 @@ package com.cuiyq.cloudpicturebackend.constant;
  * @since 2025/04/16 17:37
  */
 public interface RedisConstant {
-    String USER_LOGIN_KEY = "cloude-picture-backend:user:login:";
-    Long USER_LOGIN_EXPIRE_SECONDS = 60 * 60 * 24 * 7L;
+
+
 
 }
