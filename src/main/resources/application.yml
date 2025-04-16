@@ -1,8 +1,8 @@
 
 server:
   port: 8123
-#  servlet:
-#    context-path: /api
+  servlet:
+    context-path: /api
 spring:
   application:
     name: cloud-picture-backend
@@ -25,4 +25,18 @@ knife4j:
         api-rule-resources:
           - com.cuiyq.cloudpicturebackend.controller
 
+mybatis-plus:
+  configuration:
+    # MyBatis 配置
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    # 全局配置
+    db-config:
+      # 数据库配置
+      id-type: auto
 
+      db-config:
+        logic-delete-field: deleted # 全局逻辑删除字段名
+        logic-delete-value: 1 # 逻辑已删除值
+        logic-not-delete-value: 0 # 逻辑未删除值
