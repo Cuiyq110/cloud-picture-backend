@@ -13,6 +13,14 @@ import javax.servlet.http.HttpServletRequest;
 */
 public interface userService extends IService<User> {
 
+
+    /**
+     * 用户退出
+     * @param request 请求
+     * @return 是否退出成功
+     */
+    boolean userLogout(HttpServletRequest request);
+
     /**
      * 获取当前登录用户信息
      * @param request

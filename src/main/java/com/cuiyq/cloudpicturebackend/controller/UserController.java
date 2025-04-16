@@ -29,6 +29,13 @@ public class UserController {
     private userServiceImpl userService;
 
 
+    @PostMapping("/logout")
+    public BaseResponse<Boolean> userLogout(HttpServletRequest request) {
+        boolean b = userService.userLogout(request);
+        ThrowUtils.throwIf(!b, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(b);
+    }
+
     @GetMapping("/get/login")
     public BaseResponse<LoginUserVo> getLoginUser(HttpServletRequest request) {
         User user = userService.getLoginUser(request);

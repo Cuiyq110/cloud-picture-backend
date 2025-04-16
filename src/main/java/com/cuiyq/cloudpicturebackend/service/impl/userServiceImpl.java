@@ -46,6 +46,22 @@ public class userServiceImpl extends ServiceImpl<userMapper, User>
     private String tokenKey = null;
 
     /**
+     * 用户注销
+     * @param request 请求
+     * @return 是否注销成功
+     */
+    @Override
+    public boolean userLogout(HttpServletRequest request) {
+//        1.先判断是否已登录
+        //判断是否登录
+        Object o = stringRedisTemplate.opsForHash().get(tokenKey, "id");
+        ThrowUtils.throwIf(o == null, ErrorCode.PARAMS_ERROR, "用户未登录");
+//        2.移除登录态
+        Long id = stringRedisTemplate.opsForHash().delete(tokenKey, "id");
+        return id > 0;
+    }
+
+    /**
      * 获取当前登录用户信息
      *
      * @param request
@@ -53,8 +69,10 @@ public class userServiceImpl extends ServiceImpl<userMapper, User>
      */
     @Override
     public User getLoginUser(HttpServletRequest request) {
+//        判断是否登录
         Object o = stringRedisTemplate.opsForHash().get(tokenKey, "id");
         ThrowUtils.throwIf(o == null, ErrorCode.PARAMS_ERROR, "用户未登录");
+//        根据缓存中的id查数据库
             String userId = o.toString();
             User user = query().eq("id", userId).one();
             return user;
@@ -95,6 +113,7 @@ public class userServiceImpl extends ServiceImpl<userMapper, User>
         ThrowUtils.throwIf(count > 0, ErrorCode.PARAMS_ERROR, "用户已存在");
 //        3.密码一定要加密
         String encryptByPassword = getEncryptByPassword(userPassword);
+//        TODO 用户头像，设置默认头像
 //        4.插入数据到数据库中
         User user = new User();
         user.setUserAccount(userAccount);
