@@ -2,7 +2,9 @@ package com.cuiyq.cloudpicturebackend.service;
 
 import com.cuiyq.cloudpicturebackend.model.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.cuiyq.cloudpicturebackend.model.vo.UserLoginVo;
+import com.cuiyq.cloudpicturebackend.model.vo.LoginUserVo;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
 * @author cuiyq
@@ -10,6 +12,13 @@ import com.cuiyq.cloudpicturebackend.model.vo.UserLoginVo;
 * @createDate 2025-04-16 16:12:40
 */
 public interface userService extends IService<User> {
+
+    /**
+     * 获取当前登录用户信息
+     * @param request
+     * @return 用户信息
+     */
+    User getLoginUser(HttpServletRequest request);
 
     /**
      * 用户注册
@@ -34,12 +43,12 @@ public interface userService extends IService<User> {
      * @param userPassword 用户密码
      * @return 脱敏后的用户信息
      */
-    UserLoginVo userLogin(String userAccount, String userPassword);
+    LoginUserVo userLogin(String userAccount, String userPassword);
 
     /**
      * 获取脱敏后的用户信息
      * @param user 原始用户信息
      * @return 脱敏后的用户信息
      */
-    UserLoginVo getLoginUserVo(User user);
+    LoginUserVo getLoginUserVo(User user);
 }

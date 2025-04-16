@@ -17,7 +17,7 @@ import com.cuiyq.cloudpicturebackend.exception.ErrorCode;
 import com.cuiyq.cloudpicturebackend.exception.ThrowUtils;
 import com.cuiyq.cloudpicturebackend.model.domain.User;
 import com.cuiyq.cloudpicturebackend.model.enums.UserRoleEnum;
-import com.cuiyq.cloudpicturebackend.model.vo.UserLoginVo;
+import com.cuiyq.cloudpicturebackend.model.vo.LoginUserVo;
 import com.cuiyq.cloudpicturebackend.service.userService;
 import com.cuiyq.cloudpicturebackend.mapper.userMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 import static com.cuiyq.cloudpicturebackend.constant.UserConstant.*;
 
@@ -41,6 +42,25 @@ public class userServiceImpl extends ServiceImpl<userMapper, User>
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+    private String tokenKey = null;
+
+    /**
+     * 获取当前登录用户信息
+     *
+     * @param request
+     * @return 用户信息
+     */
+    @Override
+    public User getLoginUser(HttpServletRequest request) {
+        Object o = stringRedisTemplate.opsForHash().get(tokenKey, "id");
+        ThrowUtils.throwIf(o == null, ErrorCode.PARAMS_ERROR, "用户未登录");
+            String userId = o.toString();
+            User user = query().eq("id", userId).one();
+            return user;
+    }
+
+
 
     /**
      * 用户注册
@@ -101,7 +121,7 @@ public class userServiceImpl extends ServiceImpl<userMapper, User>
     }
 
     @Override
-    public UserLoginVo userLogin(String userAccount, String userPassword) {
+    public LoginUserVo userLogin(String userAccount, String userPassword) {
 //        1.校验
         // 1. 校验
         if (StrUtil.hasBlank(userAccount, userPassword)) {
@@ -137,7 +157,7 @@ public class userServiceImpl extends ServiceImpl<userMapper, User>
                     return fieldValue != null ? fieldValue.toString() : null;
                 }));
         // 5.3.存储
-        String tokenKey = KEY_PRE_FIX + USER_LOGIN_KEY + token;
+        tokenKey = KEY_PRE_FIX + USER_LOGIN_KEY + token;
         stringRedisTemplate.opsForHash().putAll(tokenKey, userMap);
 
         //5.4.设置token有效期
@@ -153,18 +173,18 @@ public class userServiceImpl extends ServiceImpl<userMapper, User>
      * @return UserLoginVo 用户登录信息的视图对象，包含用户登录所需的信息
      */
     @Override
-    public UserLoginVo getLoginUserVo(User user) {
+    public LoginUserVo getLoginUserVo(User user) {
         // 检查传入的用户对象是否为空，为空则返回null，表示没有用户信息
         if (user == null) {
             return null;
         }
         // 创建一个用户登录信息的视图对象实例
-        UserLoginVo userLoginVo = new UserLoginVo();
+        LoginUserVo loginUserVo = new LoginUserVo();
         // 使用BeanUtil工具类将用户实体类的属性值复制到用户登录信息的视图对象中
         // 这里使用工具类是为了简化代码，提高开发效率
-        BeanUtil.copyProperties(user, userLoginVo);
+        BeanUtil.copyProperties(user, loginUserVo);
         // 返回填充好用户信息的视图对象
-        return userLoginVo;
+        return loginUserVo;
     }
 }
 

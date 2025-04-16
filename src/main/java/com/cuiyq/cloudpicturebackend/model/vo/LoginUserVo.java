@@ -14,7 +14,7 @@ import java.util.Date;
  * @since 2025/04/16 17:21
  */
 @Data
-public class UserLoginVo implements Serializable {
+public class LoginUserVo implements Serializable {
 
 
         /**
