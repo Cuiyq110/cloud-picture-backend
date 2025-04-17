@@ -18,7 +18,7 @@ import com.cuiyq.cloudpicturebackend.exception.ThrowUtils;
 import com.cuiyq.cloudpicturebackend.model.domain.User;
 import com.cuiyq.cloudpicturebackend.model.enums.UserRoleEnum;
 import com.cuiyq.cloudpicturebackend.model.vo.LoginUserVo;
-import com.cuiyq.cloudpicturebackend.service.userService;
+import com.cuiyq.cloudpicturebackend.service.UserService;
 import com.cuiyq.cloudpicturebackend.mapper.userMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -37,13 +37,13 @@ import static com.cuiyq.cloudpicturebackend.constant.UserConstant.*;
  */
 @Service
 @Slf4j
-public class userServiceImpl extends ServiceImpl<userMapper, User>
-        implements userService {
+public class UserServiceImpl extends ServiceImpl<userMapper, User>
+        implements UserService {
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
-    private String tokenKey = null;
+    private String tokenKey = "";
 
     /**
      * 用户注销
@@ -78,6 +78,22 @@ public class userServiceImpl extends ServiceImpl<userMapper, User>
             return user;
     }
 
+    /**
+     * 获取当前登录用户信息
+     *
+     * @return 用户信息
+     */
+    @Override
+    public User getLoginUser() {
+
+//        判断是否登录
+        Object o = stringRedisTemplate.opsForHash().get(tokenKey, "id");
+        ThrowUtils.throwIf(o == null, ErrorCode.PARAMS_ERROR, "用户未登录");
+//        根据缓存中的id查数据库
+        String userId = o.toString();
+        User user = query().eq("id", userId).one();
+        return user;
+    }
 
 
     /**

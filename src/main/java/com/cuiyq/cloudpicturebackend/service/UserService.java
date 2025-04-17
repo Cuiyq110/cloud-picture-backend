@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 * @description 针对表【user(用户)】的数据库操作Service
 * @createDate 2025-04-16 16:12:40
 */
-public interface userService extends IService<User> {
+public interface UserService extends IService<User> {
 
 
     /**
@@ -27,6 +27,12 @@ public interface userService extends IService<User> {
      * @return 用户信息
      */
     User getLoginUser(HttpServletRequest request);
+
+    /**
+     * 获取当前登录用户信息
+     * @return 用户信息
+     */
+    User getLoginUser();
 
     /**
      * 用户注册

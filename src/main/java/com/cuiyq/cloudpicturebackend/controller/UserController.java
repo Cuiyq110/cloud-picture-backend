@@ -1,12 +1,14 @@
 package com.cuiyq.cloudpicturebackend.controller;
 
+import com.cuiyq.cloudpicturebackend.aop.AuthCheck;
+import com.cuiyq.cloudpicturebackend.constant.UserConstant;
 import com.cuiyq.cloudpicturebackend.exception.ErrorCode;
 import com.cuiyq.cloudpicturebackend.exception.ThrowUtils;
 import com.cuiyq.cloudpicturebackend.model.domain.User;
 import com.cuiyq.cloudpicturebackend.model.dto.user.UserLoginRequest;
 import com.cuiyq.cloudpicturebackend.model.dto.user.UserRegisterRequest;
 import com.cuiyq.cloudpicturebackend.model.vo.LoginUserVo;
-import com.cuiyq.cloudpicturebackend.service.impl.userServiceImpl;
+import com.cuiyq.cloudpicturebackend.service.impl.UserServiceImpl;
 import com.cuiyq.common.BaseResponse;
 import com.cuiyq.common.ResultUtils;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +28,10 @@ import javax.servlet.http.HttpServletRequest;
 public class UserController {
 
     @Resource
-    private userServiceImpl userService;
+    private UserServiceImpl userService;
 
 
+    @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
     @PostMapping("/logout")
     public BaseResponse<Boolean> userLogout(HttpServletRequest request) {
         boolean b = userService.userLogout(request);
