@@ -3,8 +3,10 @@ package com.cuiyq.cloudpicturebackend.service;
 import com.cuiyq.cloudpicturebackend.model.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.cuiyq.cloudpicturebackend.model.vo.LoginUserVo;
+import com.cuiyq.cloudpicturebackend.model.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
 * @author cuiyq
@@ -59,6 +61,19 @@ public interface UserService extends IService<User> {
      */
     LoginUserVo userLogin(String userAccount, String userPassword);
 
+    /**
+     * 获取脱敏后的单个用户信息
+     * @param user 原始用户信息
+     * @return 脱敏后的用户信息
+     */
+    UserVO getUserVo(User user);
+
+    /**
+     * 获取脱敏后的用户列表信息
+     * @param user 原始用户信息
+     * @return 脱敏后的用户信息
+     */
+    List<UserVO> getUserVoList(List<User> user);
     /**
      * 获取脱敏后的用户信息
      * @param user 原始用户信息

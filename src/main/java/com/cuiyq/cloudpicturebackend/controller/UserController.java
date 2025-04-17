@@ -31,7 +31,11 @@ public class UserController {
     private UserServiceImpl userService;
 
 
-    @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
+    /**
+     * 用户注销
+     * @param request
+     * @return
+     */
     @PostMapping("/logout")
     public BaseResponse<Boolean> userLogout(HttpServletRequest request) {
         boolean b = userService.userLogout(request);

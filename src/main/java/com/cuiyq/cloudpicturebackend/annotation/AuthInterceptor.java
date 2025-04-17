@@ -9,14 +9,11 @@ import com.cuiyq.cloudpicturebackend.service.UserService;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 
-import static com.cuiyq.cloudpicturebackend.constant.UserConstant.KEY_PRE_FIX;
-import static com.cuiyq.cloudpicturebackend.constant.UserConstant.USER_LOGIN_KEY;
 
 /**
  * desc

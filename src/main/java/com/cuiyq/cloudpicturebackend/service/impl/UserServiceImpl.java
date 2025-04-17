@@ -1,13 +1,12 @@
 package com.cuiyq.cloudpicturebackend.service.impl;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -18,6 +17,7 @@ import com.cuiyq.cloudpicturebackend.exception.ThrowUtils;
 import com.cuiyq.cloudpicturebackend.model.domain.User;
 import com.cuiyq.cloudpicturebackend.model.enums.UserRoleEnum;
 import com.cuiyq.cloudpicturebackend.model.vo.LoginUserVo;
+import com.cuiyq.cloudpicturebackend.model.vo.UserVO;
 import com.cuiyq.cloudpicturebackend.service.UserService;
 import com.cuiyq.cloudpicturebackend.mapper.userMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +47,7 @@ public class UserServiceImpl extends ServiceImpl<userMapper, User>
 
     /**
      * 用户注销
+     *
      * @param request 请求
      * @return 是否注销成功
      */
@@ -73,10 +74,11 @@ public class UserServiceImpl extends ServiceImpl<userMapper, User>
         Object o = stringRedisTemplate.opsForHash().get(tokenKey, "id");
         ThrowUtils.throwIf(o == null, ErrorCode.PARAMS_ERROR, "用户未登录");
 //        根据缓存中的id查数据库
-            String userId = o.toString();
-            User user = query().eq("id", userId).one();
-            return user;
+        String userId = o.toString();
+        User user = query().eq("id", userId).one();
+        return user;
     }
+
 
     /**
      * 获取当前登录用户信息
@@ -129,7 +131,7 @@ public class UserServiceImpl extends ServiceImpl<userMapper, User>
         ThrowUtils.throwIf(count > 0, ErrorCode.PARAMS_ERROR, "用户已存在");
 //        3.密码一定要加密
         String encryptByPassword = getEncryptByPassword(userPassword);
-//        TODO 用户头像，设置默认头像
+//        TODO 2. 用户头像，设置默认头像
 //        4.插入数据到数据库中
         User user = new User();
         user.setUserAccount(userAccount);
@@ -155,6 +157,7 @@ public class UserServiceImpl extends ServiceImpl<userMapper, User>
         return DigestUtils.md5DigestAsHex((salt + userPassword).getBytes());
     }
 
+    //TODO 1.拦截器进行登录拦截
     @Override
     public LoginUserVo userLogin(String userAccount, String userPassword) {
 //        1.校验
@@ -201,8 +204,46 @@ public class UserServiceImpl extends ServiceImpl<userMapper, User>
         return getLoginUserVo(user);
     }
 
+
     /**
      * 获取脱敏类的用户信息
+     *
+     * @param user 用户实体类，包含用户的基本信息
+     * @return UserLoginVo 用户登录信息的视图对象，包含用户登录所需的信息
+     */
+    @Override
+    public UserVO getUserVo(User user) {
+        // 检查传入的用户对象是否为空，为空则返回null，表示没有用户信息
+        if (user == null) {
+            return null;
+        }
+        // 创建一个用户登录信息的视图对象实例
+        UserVO userVo = new UserVO();
+        // 使用BeanUtil工具类将用户实体类的属性值复制到用户登录信息的视图对象中
+        // 这里使用工具类是为了简化代码，提高开发效率
+        BeanUtil.copyProperties(user, userVo);
+        // 返回填充好用户信息的视图对象
+        return userVo;
+    }
+
+    /**
+     * 获取脱敏后的用户列表信息
+     * @return 脱敏后的用户信息
+     */
+    @Override
+    public List<UserVO> getUserVoList(List<User> userList) {
+        if (CollUtil.isEmpty(userList)) {
+            return new ArrayList<>();
+        }
+
+        // 使用map方法遍历原始用户列表，对每个用户进行转换
+        // 将每个用户转换为UserVO对象，并返回转换后的结果
+        return userList.stream().map(this::getUserVo).collect(Collectors.toList());
+    }
+
+
+    /**
+     * 获取脱敏类的登录用户信息
      *
      * @param user 用户实体类，包含用户的基本信息
      * @return UserLoginVo 用户登录信息的视图对象，包含用户登录所需的信息
