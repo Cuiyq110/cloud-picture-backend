@@ -9,6 +9,7 @@ import com.cuiyq.cloudpicturebackend.model.domain.User;
 import com.cuiyq.cloudpicturebackend.model.dto.user.UserAddRequest;
 import com.cuiyq.cloudpicturebackend.model.dto.user.UserLoginRequest;
 import com.cuiyq.cloudpicturebackend.model.dto.user.UserRegisterRequest;
+import com.cuiyq.cloudpicturebackend.model.dto.user.UserUpdateRequest;
 import com.cuiyq.cloudpicturebackend.model.vo.LoginUserVo;
 import com.cuiyq.cloudpicturebackend.model.vo.UserVO;
 import com.cuiyq.cloudpicturebackend.service.impl.UserServiceImpl;
@@ -36,8 +37,17 @@ public class UserController {
     private UserServiceImpl userService;
 
 
-
-
+    /**
+     * 更新用户
+     */
+    public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest) {
+        ThrowUtils.throwIf(userUpdateRequest == null || userUpdateRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
+        User user = new User();
+        BeanUtils.copyProperties(userUpdateRequest, user);
+        boolean result = userService.updateById(user);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(result);
+    }
 
     /**
      * 删除用户
