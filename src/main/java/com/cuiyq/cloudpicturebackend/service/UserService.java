@@ -71,14 +71,14 @@ public interface UserService extends IService<User> {
     LoginUserVo userLogin(String userAccount, String userPassword);
 
     /**
-     * 获取脱敏后的单个用户信息
+     * 根据用户获取脱敏后的单个用户信息
      * @param user 原始用户信息
      * @return 脱敏后的用户信息
      */
     UserVO getUserVo(User user);
 
     /**
-     * 获取脱敏后的用户列表信息
+     * 根据用户列表获取脱敏后的用户列表信息
      * @param user 原始用户信息
      * @return 脱敏后的用户信息
      */
