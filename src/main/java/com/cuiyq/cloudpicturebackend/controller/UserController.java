@@ -10,6 +10,7 @@ import com.cuiyq.cloudpicturebackend.model.dto.user.UserAddRequest;
 import com.cuiyq.cloudpicturebackend.model.dto.user.UserLoginRequest;
 import com.cuiyq.cloudpicturebackend.model.dto.user.UserRegisterRequest;
 import com.cuiyq.cloudpicturebackend.model.vo.LoginUserVo;
+import com.cuiyq.cloudpicturebackend.model.vo.UserVO;
 import com.cuiyq.cloudpicturebackend.service.impl.UserServiceImpl;
 import com.cuiyq.common.BaseResponse;
 import com.cuiyq.common.ResultUtils;
@@ -33,6 +34,17 @@ public class UserController {
     @Resource
     private UserServiceImpl userService;
 
+
+    /**
+     * 根据id获取包装类
+     */
+    @GetMapping("/get/vo")
+    public BaseResponse<UserVO> getUserVOById(long id) {
+        ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
+        BaseResponse<User> userBaseResponse = getUserById(id);
+        User data = userBaseResponse.getData();
+        return ResultUtils.success(userService.getUserVo(data));
+    }
 
     /**
      * 添加用户
