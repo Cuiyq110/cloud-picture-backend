@@ -8,6 +8,8 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.ObjUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -15,6 +17,7 @@ import com.cuiyq.cloudpicturebackend.exception.BusinessException;
 import com.cuiyq.cloudpicturebackend.exception.ErrorCode;
 import com.cuiyq.cloudpicturebackend.exception.ThrowUtils;
 import com.cuiyq.cloudpicturebackend.model.domain.User;
+import com.cuiyq.cloudpicturebackend.model.dto.user.UserQueryRequest;
 import com.cuiyq.cloudpicturebackend.model.enums.UserRoleEnum;
 import com.cuiyq.cloudpicturebackend.model.vo.LoginUserVo;
 import com.cuiyq.cloudpicturebackend.model.vo.UserVO;
@@ -44,6 +47,35 @@ public class UserServiceImpl extends ServiceImpl<userMapper, User>
     private StringRedisTemplate stringRedisTemplate;
 
     private String tokenKey = "";
+
+    /**
+     * 获取查询条件
+     *
+     * @param userQueryRequest 查询请求体
+     * @return 查询条件
+     */
+    @Override
+    public QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest) {
+        if (userQueryRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数为空");
+        }
+        Long id = userQueryRequest.getId();
+        String userName = userQueryRequest.getUserName();
+        String userAccount = userQueryRequest.getUserAccount();
+        String userProfile = userQueryRequest.getUserProfile();
+        String userRole = userQueryRequest.getUserRole();
+        String sortField = userQueryRequest.getSortField();
+        String sortOrder = userQueryRequest.getSortOrder();
+
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq(ObjectUtil.isNotEmpty(id),"id",id);
+        queryWrapper.eq(StrUtil.isNotBlank(userRole), "userRole", userRole);
+        queryWrapper.like(StrUtil.isNotBlank(userAccount), "userAccount", userAccount);
+        queryWrapper.like(StrUtil.isNotBlank(userName), "userName", userName);
+        queryWrapper.like(StrUtil.isNotBlank(userProfile), "userProfile", userProfile);
+        queryWrapper.orderBy(StrUtil.isNotEmpty(sortField), sortOrder.equals("ascend"), sortField);
+        return queryWrapper;
+    }
 
     /**
      * 用户注销
@@ -228,6 +260,7 @@ public class UserServiceImpl extends ServiceImpl<userMapper, User>
 
     /**
      * 获取脱敏后的用户列表信息
+     *
      * @return 脱敏后的用户信息
      */
     @Override

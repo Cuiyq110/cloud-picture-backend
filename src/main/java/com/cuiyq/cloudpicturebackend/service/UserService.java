@@ -1,7 +1,9 @@
 package com.cuiyq.cloudpicturebackend.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.cuiyq.cloudpicturebackend.model.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.cuiyq.cloudpicturebackend.model.dto.user.UserQueryRequest;
 import com.cuiyq.cloudpicturebackend.model.vo.LoginUserVo;
 import com.cuiyq.cloudpicturebackend.model.vo.UserVO;
 
@@ -15,6 +17,13 @@ import java.util.List;
 */
 public interface UserService extends IService<User> {
 
+
+    /**
+     * 获取查询条件
+     * @param userQueryRequest 查询请求体
+     * @return
+     */
+    QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
 
     /**
      * 用户退出
