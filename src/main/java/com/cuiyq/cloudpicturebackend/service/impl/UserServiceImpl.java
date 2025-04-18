@@ -189,7 +189,7 @@ public class UserServiceImpl extends ServiceImpl<userMapper, User>
         return DigestUtils.md5DigestAsHex((salt + userPassword).getBytes());
     }
 
-    //TODO 1.拦截器进行登录拦截
+    //TODO 1.拦截器进行登录拦截, 登录状态刷新
     @Override
     public LoginUserVo userLogin(String userAccount, String userPassword) {
 //        1.校验

@@ -2,15 +2,18 @@ package com.cuiyq.cloudpicturebackend.controller;
 
 import com.cuiyq.cloudpicturebackend.aop.AuthCheck;
 import com.cuiyq.cloudpicturebackend.constant.UserConstant;
+import com.cuiyq.cloudpicturebackend.exception.BusinessException;
 import com.cuiyq.cloudpicturebackend.exception.ErrorCode;
 import com.cuiyq.cloudpicturebackend.exception.ThrowUtils;
 import com.cuiyq.cloudpicturebackend.model.domain.User;
+import com.cuiyq.cloudpicturebackend.model.dto.user.UserAddRequest;
 import com.cuiyq.cloudpicturebackend.model.dto.user.UserLoginRequest;
 import com.cuiyq.cloudpicturebackend.model.dto.user.UserRegisterRequest;
 import com.cuiyq.cloudpicturebackend.model.vo.LoginUserVo;
 import com.cuiyq.cloudpicturebackend.service.impl.UserServiceImpl;
 import com.cuiyq.common.BaseResponse;
 import com.cuiyq.common.ResultUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -29,6 +32,42 @@ public class UserController {
 
     @Resource
     private UserServiceImpl userService;
+
+
+    /**
+     * 添加用户
+     * @param userAddRequest 添加用户请求类
+     * @return 添加结果
+     */
+    @PostMapping("/add")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Long> addUser(@RequestBody UserAddRequest userAddRequest) {
+        if (userAddRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User user = new User();
+        BeanUtils.copyProperties(userAddRequest, user);
+//        1.设置默认密码
+        final String DEFAULT_PASSWORD = "12345678";
+        String encryptByPassword = userService.getEncryptByPassword(DEFAULT_PASSWORD);
+        user.setUserPassword(encryptByPassword);
+        boolean result = userService.save(user);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(user.getId());
+    }
+
+    /**
+     * 管理员根据id查询用户未脱敏
+     */
+    @GetMapping("/get")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<User> getUserById(long id) {
+        ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
+//        3.TODO redis缓存
+        User user = userService.getById(id);
+        ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR);
+        return ResultUtils.success(user);
+    }
 
 
     /**
