@@ -13,6 +13,7 @@ import com.cuiyq.cloudpicturebackend.model.vo.LoginUserVo;
 import com.cuiyq.cloudpicturebackend.model.vo.UserVO;
 import com.cuiyq.cloudpicturebackend.service.impl.UserServiceImpl;
 import com.cuiyq.common.BaseResponse;
+import com.cuiyq.common.DeleteRequest;
 import com.cuiyq.common.ResultUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +35,22 @@ public class UserController {
     @Resource
     private UserServiceImpl userService;
 
+
+
+
+
+    /**
+     * 删除用户
+     */
+    @PostMapping("/delete")
+    public BaseResponse<Boolean> deleteUser(@RequestBody DeleteRequest deleteRequest) {
+        if (deleteRequest == null || deleteRequest.getId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        boolean b = userService.removeById(deleteRequest.getId());
+        ThrowUtils.throwIf(!b, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(b);
+    }
 
     /**
      * 根据id获取包装类
