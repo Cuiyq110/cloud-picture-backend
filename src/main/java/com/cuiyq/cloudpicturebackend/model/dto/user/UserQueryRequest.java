@@ -1,6 +1,6 @@
 package com.cuiyq.cloudpicturebackend.model.dto.user;
 
-import com.cuiyq.common.PageRequest;
+import com.cuiyq.cloudpicturebackend.common.PageRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

@@ -1,7 +1,7 @@
 package com.cuiyq.cloudpicturebackend.exception;
 
-import com.cuiyq.common.BaseResponse;
-import com.cuiyq.common.ResultUtils;
+import com.cuiyq.cloudpicturebackend.common.BaseResponse;
+import com.cuiyq.cloudpicturebackend.common.ResultUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

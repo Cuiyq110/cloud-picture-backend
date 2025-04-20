@@ -1,7 +1,7 @@
 package com.cuiyq.cloudpicturebackend.controller;
 
-import com.cuiyq.common.BaseResponse;
-import com.cuiyq.common.ResultUtils;
+import com.cuiyq.cloudpicturebackend.common.BaseResponse;
+import com.cuiyq.cloudpicturebackend.common.ResultUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

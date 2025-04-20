@@ -1,4 +1,4 @@
-package com.cuiyq.common;
+package com.cuiyq.cloudpicturebackend.common;
 
 import lombok.Data;
 

@@ -1,6 +1,5 @@
 package com.cuiyq.cloudpicturebackend.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cuiyq.cloudpicturebackend.aop.AuthCheck;
 import com.cuiyq.cloudpicturebackend.constant.UserConstant;
@@ -12,10 +11,9 @@ import com.cuiyq.cloudpicturebackend.model.dto.user.*;
 import com.cuiyq.cloudpicturebackend.model.vo.LoginUserVo;
 import com.cuiyq.cloudpicturebackend.model.vo.UserVO;
 import com.cuiyq.cloudpicturebackend.service.impl.UserServiceImpl;
-import com.cuiyq.common.BaseResponse;
-import com.cuiyq.common.DeleteRequest;
-import com.cuiyq.common.ResultUtils;
-import com.fasterxml.jackson.databind.ser.Serializers;
+import com.cuiyq.cloudpicturebackend.common.BaseResponse;
+import com.cuiyq.cloudpicturebackend.common.DeleteRequest;
+import com.cuiyq.cloudpicturebackend.common.ResultUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 

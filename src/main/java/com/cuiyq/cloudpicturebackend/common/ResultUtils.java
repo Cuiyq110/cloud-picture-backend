@@ -1,4 +1,4 @@
-package com.cuiyq.common;
+package com.cuiyq.cloudpicturebackend.common;
 
 import com.cuiyq.cloudpicturebackend.exception.ErrorCode;
 import lombok.Data;
